@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int   @id @default(autoincrement())
+  name                  String
+  phone                 String
+  email                 String  @unique
+  password              String
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  user_type             UserType
+  products              Product[]
+  buyer_messages        Message[] @relation("buyer_messages")
+  admin_messages      Message[] @relation("admin_messages")
+   orders              Order[]
+  paypal_payments      PaypalPayment[]
+}
+
+model Product {
+  id                    Int   @id @default(autoincrement())
+  title                  String
+  description            String?
+  listed_date           DateTime @default(now())
+  price                 Float
+  categoryType          categoryType
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  image               Image[]
+  admin_id            Int
+  admin               User @relation(fields: [admin_id], references: [id])
+  orders              Order[]
+  messages              Message[]
+}
+
+model Image {
+  id                    Int   @id @default(autoincrement())
+  url                   String
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  product_id               Int
+  product                  Product @relation(fields: [product_id], references: [id])
+}
+
+model Message {
+  id                    Int   @id @default(autoincrement())
+  message               String
+  product_id               Int
+  product                  Product @relation(fields: [product_id], references: [id])
+  admin_id            Int
+  admin               User @relation("buyer_messages", fields: [admin_id], references: [id])
+  buyer_id              Int
+  buyer                 User @relation("admin_messages", fields: [buyer_id], references: [id])
+}
+model Order {
+  id          Int         @id @default(autoincrement())
+  user        User        @relation(fields: [user_id], references: [id])
+  user_id     Int
+  product_id   Int
+  product     Product     @relation(fields: [product_id], references: [id])
+  quantity    Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  completed   Boolean     @default(false)
+  delivered   Boolean     @default(false)
+  transactions Transaction[]
+  paypal_payments      PaypalPayment[]
+}
+model Transaction {
+  id                   String       @id @default(uuid())
+  amount              Float
+  msisdn              String
+  sync_count          Int
+  is_complete         Boolean
+  sync_status         String
+  link_id             String
+  supporter_id        String
+  external_reference  String
+  mpesa_receipt       String?
+  order               Order        @relation(fields: [order_id], references: [id])
+  order_id            Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Category {
+  id                    Int   @id @default(autoincrement())
+  name                  String @unique
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+}
+
+
+model PaypalPayment {
+  id String @id @default(uuid())
+  create_time String
+  payerID String
+  payer_email String
+  amount String
+  payeeID String
+  payee_email String
+  merchantID String
+  payment_method PaymentMethod
+  currency String
+  status TransactionStatus
+  order Order @relation(fields: [order_id], references: [id])
+  order_id Int
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+}
+
+enum PaymentMethod {
+  CASH
+  MPESA
+  PAYPAL
+}
+enum PaymentStatus {
+  COMPLETED
+  PENDING
+  FAILED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum categoryType {
+
+  WATCHES
+  SHOES
+  PERFUMES
+  
+}
+
+enum UserType {
+  BUYER
+  ADMIN
+}
+
