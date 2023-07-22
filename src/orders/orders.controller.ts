@@ -17,7 +17,6 @@ import { Roles } from 'src/decorators/roles.decorators';
 import { UserType } from '@prisma/client';
 import { whichUser } from 'src/Utils.interfaces';
 import { User } from 'src/user/decorator/user.decorator';
-
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
@@ -25,13 +24,9 @@ export class OrdersController {
 
   @ApiCreatedResponse({ description: 'Order created' })
   @Roles(UserType.BUYER, UserType.ADMIN)
-  @Post(':id')
-  async createOrder(
-    @Body() body: CreateOrderDto,
-    @Param('id', ParseIntPipe) productId: number,
-    @User() user: whichUser,
-  ) {
-    return this.ordersService.createOrder(body, productId, user.id);
+  @Post()
+  async createOrder(@Body() body: CreateOrderDto, @User() user: whichUser) {
+    return this.ordersService.createOrder(body, user.id);
   }
 
   @ApiOkResponse({ description: 'Orders retrieved' })
