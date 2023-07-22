@@ -32,6 +32,7 @@ model Product {
   description            String?
   listed_date           DateTime @default(now())
   price                 Float
+  quantity              Int @default(1)
   categoryType          categoryType
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
@@ -81,6 +82,7 @@ model Transaction {
   msisdn              String
   sync_count          Int
   is_complete         Boolean
+  status              PaymentStatus? @default(PENDING)
   sync_status         String
   link_id             String
   supporter_id        String

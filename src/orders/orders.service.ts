@@ -28,6 +28,9 @@ export class OrdersService {
             },
           },
         },
+        user: true,
+        transactions: true,
+        paypal_payments: true,
       },
     });
 
@@ -68,11 +71,7 @@ export class OrdersService {
     return order;
   }
 
-  async createOrder(
-    { quantity }: CreateOrderDto,
-    productId: number,
-    userId: number,
-  ) {
+  async createOrder({ quantity, productId }: CreateOrderDto, userId: number) {
     const product = await this.prismaService.product.findUnique({
       where: {
         id: productId,
@@ -119,6 +118,8 @@ export class OrdersService {
               },
             },
           },
+          transactions: true,
+          paypal_payments: true,
         },
       });
       return updatedOrder;
@@ -155,6 +156,8 @@ export class OrdersService {
               },
             },
           },
+          transactions: true,
+          paypal_payments: true,
         },
       });
 

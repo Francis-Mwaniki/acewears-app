@@ -18,6 +18,7 @@ export class ProductsService {
         title: true,
         description: true,
         categoryType: true,
+        quantity: true,
         image: {
           select: {
             url: true,
@@ -57,6 +58,7 @@ export class ProductsService {
         title: true,
         description: true,
         categoryType: true,
+        quantity: true,
         image: {
           select: {
             url: true,
