@@ -47,7 +47,15 @@ export interface whichUser {
   iat: number;
   exp: number;
 }
-
+export interface createContactParams {
+  email: string;
+  phone: string;
+  address: string;
+  contactName: string;
+  city: string;
+  zipCode: string;
+  country: string;
+}
 export interface Category {
   id: number;
   name: string;
@@ -68,4 +76,30 @@ export interface TransactionParams {
 export interface CreateTransactionParams {
   amount: number;
   msisdn: string;
+}
+// DTO for success data
+export interface SuccessParams {
+  MerchantRequestID: string;
+  CheckoutRequestID: string;
+  ResultCode: number;
+  ResultDesc: string;
+  CallbackMetadata: {
+    Item: { Name: string; Value: any }[];
+  };
+  TinyPesaID: string;
+  ExternalReference: string;
+  Amount: number;
+  Msisdn: string;
+}
+
+// DTO for error data
+export interface ErrorParams {
+  MerchantRequestID: string;
+  CheckoutRequestID: string;
+  ResultCode: number;
+  ResultDesc: string;
+  TinyPesaID: string;
+  ExternalReference: string;
+  Amount: number;
+  Msisdn: string;
 }

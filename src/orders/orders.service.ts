@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateOrderDto } from './dto/orders/create-order.dto';
+import { ContactDTO, CreateOrderDto } from './dto/orders/create-order.dto';
+import { createContactParams } from 'src/Utils.interfaces';
 
 @Injectable()
 export class OrdersService {
@@ -59,6 +60,7 @@ export class OrdersService {
             },
           },
         },
+        contact: true,
       },
     });
     if (!order) {
@@ -79,6 +81,12 @@ export class OrdersService {
       select: {
         id: true,
         price: true,
+        image: {
+          select: {
+            url: true,
+          },
+        },
+        description: true,
       },
     });
     if (!product) {
@@ -99,6 +107,7 @@ export class OrdersService {
         },
         data: {
           quantity: orderExists.quantity + quantity,
+          completed: false,
         },
         select: {
           id: true,
@@ -118,6 +127,7 @@ export class OrdersService {
               },
             },
           },
+          contact: true,
           transactions: true,
           paypal_payments: true,
         },
@@ -156,6 +166,7 @@ export class OrdersService {
               },
             },
           },
+          contact: true,
           transactions: true,
           paypal_payments: true,
         },
@@ -181,6 +192,7 @@ export class OrdersService {
         user_id: true,
         completed: true,
         updatedAt: true,
+        quantity: true,
         product: {
           select: {
             id: true,
@@ -209,7 +221,8 @@ export class OrdersService {
         id,
       },
       data: {
-        quantity,
+        quantity: 0,
+        completed: true,
       },
     });
 
@@ -232,6 +245,8 @@ export class OrdersService {
     if (order.user_id !== userId) {
       throw new NotFoundException('Order not found');
     }
+
+    /* delete address first */
 
     await this.prismaService.order.delete({
       where: {
@@ -395,5 +410,91 @@ export class OrdersService {
     });
 
     return updatedOrder;
+  }
+
+  async createContact(
+    {
+      contactName,
+      address,
+      zipCode,
+      city,
+      country,
+      phone,
+      email,
+    }: createContactParams,
+    userId: number,
+  ) {
+    const contact = await this.prismaService.contact.create({
+      data: {
+        contactName,
+        address,
+        zipCode,
+        phone,
+        email,
+        city,
+        country,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+
+    return contact;
+  }
+
+  async getContact(userId: number) {
+    const userWithContact = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        contacts: true,
+      },
+    });
+
+    if (!userWithContact) {
+      throw new NotFoundException('User not found');
+    }
+
+    return userWithContact;
+  }
+  async updateContact(
+    {
+      contactName,
+      address,
+      zipCode,
+      city,
+      country,
+      phone,
+      email,
+    }: createContactParams,
+    userId: number,
+    id: number,
+  ) {
+    const contact = await this.prismaService.contact.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!contact) {
+      throw new NotFoundException('Contact not found');
+    }
+    return await this.prismaService.contact.update({
+      where: {
+        id: id,
+      },
+      data: {
+        contactName,
+        address,
+        zipCode,
+        city,
+        country,
+        phone,
+        email,
+      },
+    });
   }
 }

@@ -2,7 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserType } from '@prisma/client';
 import {
   CreateTransactionParams,
+  ErrorParams,
   IPaypalPayment,
+  SuccessParams,
   TransactionParams,
   whichUser,
 } from 'src/Utils.interfaces';
@@ -38,6 +40,91 @@ export class TransactionService {
     return transaction;
   }
 
+  async createTinyPesaTransaction(body: any) {
+    const transaction = this.prismaService.transaction.create({
+      data: {
+        amount: body.amount,
+        msisdn: body.msisdn,
+        sync_count: body.sync_count,
+        is_complete: false,
+        sync_status: body.sync_status,
+        link_id: body.link_id,
+        supporter_id: body.supporter_id,
+        external_reference: body.external_reference,
+        mpesa_receipt: body.mpesa_receipt,
+        order_id: body.order_id,
+      },
+
+      include: {
+        order: true,
+      },
+    });
+    // const orderStatus = this.prismaService.order.update({
+    //   where: {
+    //     id: body.order_id,
+    //   },
+    //   data: {
+    //     completed: true,
+    //   },
+    // });
+    return transaction;
+  }
+  /* 
+  
+  merchantRequestID  String
+  checkoutRequestID  String
+  resultCode        Int
+  resultDesc        String
+  callbackMetadata  Json
+  tinyPesaID        String
+  externalReference String
+  order             Order   @relation(fields: [order_id], references: [id])
+  order_id          Int @default(1)
+  amount            Int
+  msisdn            String
+  */
+
+  async createSuccessfulTinyPesaTransaction(data: SuccessParams) {
+    const transaction = this.prismaService.tinyCallback.create({
+      data: {
+        merchantRequestID: data.MerchantRequestID,
+        checkoutRequestID: data.CheckoutRequestID,
+        resultCode: data.ResultCode,
+        resultDesc: data.ResultDesc,
+        tinyPesaID: data.TinyPesaID,
+        externalReference: data.ExternalReference,
+        amount: data.Amount,
+        msisdn: data.Msisdn,
+        callbackMetadata: {
+          create: {
+            Item: {
+              create: {
+                Name: data.CallbackMetadata.Item[0].Name,
+                Value: data.CallbackMetadata.Item[0].Value,
+              },
+            },
+          },
+        },
+      },
+    });
+    return transaction;
+  }
+
+  async createErrorTinyPesaTransaction(data: ErrorParams) {
+    const transaction = await this.prismaService.errorTinyCallback.create({
+      data: {
+        merchantRequestID: data.MerchantRequestID,
+        checkoutRequestID: data.CheckoutRequestID,
+        resultCode: data.ResultCode,
+        resultDesc: data.ResultDesc,
+        tinyPesaID: data.TinyPesaID,
+        externalReference: data.ExternalReference,
+        amount: data.Amount,
+        msisdn: data.Msisdn,
+      },
+    });
+    return transaction;
+  }
   async createPaypalTransaction(
     body: IPaypalPayment,
     userType: UserType,

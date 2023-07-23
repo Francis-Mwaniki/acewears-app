@@ -24,6 +24,7 @@ model User {
   admin_messages      Message[] @relation("admin_messages")
    orders              Order[]
   paypal_payments      PaypalPayment[]
+  contacts              Contact[]
 }
 
 model Product {
@@ -71,9 +72,12 @@ model Order {
   quantity    Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  contact     Contact     @relation(fields: [contact_id], references: [id])
+  contact_id  Int         @default(1)
   completed   Boolean     @default(false)
   delivered   Boolean     @default(false)
   transactions Transaction[]
+  // tiny_callbacks TinyCallback[]
   paypal_payments      PaypalPayment[]
 }
 model Transaction {
@@ -118,6 +122,56 @@ model PaypalPayment {
   order_id Int
   user User @relation(fields: [user_id], references: [id])
   user_id Int
+}
+// schema.prisma
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  contactName String @default("Contact Name")
+  address    String @default("Address")
+  zipCode    String @default("Zip Code")
+  city       String @default("City")
+  country    String @default("Country")
+  phone      String @default("Phone")
+  email      String @default("Email")
+  user       User     @relation(fields: [user_id], references: [id])
+  Order     Order[]
+  user_id    Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Add other fields as needed
+  // ...
+}
+// prisma/schema.prisma
+model TinyCallback {
+  id                 Int     @id @default(autoincrement())
+  merchantRequestID  String
+  checkoutRequestID  String
+  resultCode        Int
+  resultDesc        String
+  callbackMetadata  Json?
+  tinyPesaID        String
+  externalReference String
+  // order             Order   @relation(fields: [order_id], references: [id])
+  // order_id          Int @default(1)
+  amount            Int
+  msisdn            String
+  createdAt         DateTime @default(now())
+}
+model ErrorTinyCallback {
+  id                 Int     @id @default(autoincrement())
+  merchantRequestID  String
+  checkoutRequestID  String
+  resultCode        Int
+  resultDesc        String
+  tinyPesaID        String
+  externalReference String
+  // order             Order   @relation(fields: [order_id], references: [id])
+  // order_id          Int @default(1)
+  amount            Int
+  msisdn            String
+  createdAt         DateTime @default(now())
 }
 
 enum PaymentMethod {
