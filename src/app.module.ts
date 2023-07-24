@@ -9,6 +9,7 @@ import { AuthGuard } from './guards.auth';
 import { UserInterceptor } from './user/interceptor/user.interceptor';
 import { OrdersModule } from './orders/orders.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TransactionModule } from './transaction/transaction.module';
       provide: 'APP_GUARD',
       useClass: AuthGuard,
     },
+    ChatGateway,
   ],
 })
 export class AppModule {}

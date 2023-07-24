@@ -3,16 +3,16 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Req,
   Param,
   Delete,
   ParseIntPipe,
+  Body,
+  Post,
+  Put,
 } from '@nestjs/common';
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/orders/create-order.dto';
+import { ContactDTO, CreateOrderDto } from './dto/orders/create-order.dto';
 import { Roles } from 'src/decorators/roles.decorators';
 import { UserType } from '@prisma/client';
 import { whichUser } from 'src/Utils.interfaces';
@@ -28,7 +28,12 @@ export class OrdersController {
   async createOrder(@Body() body: CreateOrderDto, @User() user: whichUser) {
     return this.ordersService.createOrder(body, user.id);
   }
-
+  @Get('address/:id')
+  @ApiOkResponse({ description: 'Contact retrieved' })
+  @Roles(UserType.BUYER, UserType.ADMIN)
+  async getContact(@Param('id', ParseIntPipe) userId: number) {
+    return this.ordersService.getContact(userId);
+  }
   @ApiOkResponse({ description: 'Orders retrieved' })
   @Roles(UserType.BUYER, UserType.ADMIN)
   @Get()
@@ -48,7 +53,7 @@ export class OrdersController {
 
   @ApiCreatedResponse({ description: 'Order updated' })
   @Roles(UserType.ADMIN)
-  @Post(':id/complete')
+  @Put(':id/complete')
   async completeOrder(
     @Param('id', ParseIntPipe) id: number,
     @User() user: whichUser,
@@ -70,6 +75,19 @@ export class OrdersController {
   ) {
     return this.ordersService.deliverOrder(id, user.id);
   }
+
+  /* update */
+  @ApiCreatedResponse({ description: 'Order updated' })
+  @Roles(UserType.ADMIN)
+  @Put(':id')
+  async updateOrder(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateOrderDto,
+    @User() user: whichUser,
+  ) {
+    return this.ordersService.updateOrder(body, user.id, id);
+  }
+
   @ApiCreatedResponse({ description: 'Order deleted by Admin' })
   @Roles(UserType.ADMIN)
   @Delete(':id/admin')
@@ -102,5 +120,27 @@ export class OrdersController {
   @Delete(':id/buyer')
   async deleteAllOrdersBuyer(@User() user: whichUser) {
     return this.ordersService.deleteAllOrdersBuyer(user.id);
+  }
+
+  /* contacts */
+  @ApiCreatedResponse({ description: 'Contact created' })
+  @Roles(UserType.BUYER, UserType.ADMIN)
+  @Post('add-address')
+  async createContact(
+    @Body() body: ContactDTO,
+    @User() user: whichUser,
+  ): Promise<ContactDTO> {
+    return this.ordersService.createContact(body, user.id);
+  }
+
+  @ApiCreatedResponse({ description: 'Contact updated' })
+  @Roles(UserType.BUYER, UserType.ADMIN)
+  @Put('update-address/:id')
+  async updateContact(
+    @Body() body: ContactDTO,
+    @User() user: whichUser,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ContactDTO> {
+    return this.ordersService.updateContact(body, user.id, id);
   }
 }

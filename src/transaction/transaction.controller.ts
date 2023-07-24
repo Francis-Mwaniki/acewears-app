@@ -1,3 +1,5 @@
+import { ChatGateway } from './../chat/chat.gateway';
+import { PrismaService } from 'src/prisma/prisma.service';
 import {
   IPaypalPayment,
   TransactionParams,
@@ -29,7 +31,11 @@ import { User } from 'src/user/decorator/user.decorator';
 @ApiTags('transaction')
 @Controller('transaction')
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly prismaService: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   @ApiCreatedResponse({ type: 'Transaction' })
   @Roles(UserType.BUYER)
@@ -100,12 +106,67 @@ export class TransactionController {
 
   @ApiCreatedResponse({ type: 'Transaction' })
   // @Roles(UserType.ADMIN, UserType.BUYER)
-  @Post('/tinypesa')
-  createTinyPesaTransaction(@Body() body: any) {
-    console.log('body', body);
-    return body;
-  }
+  @Post('/tinypesa/')
+  async createTinyPesaTransaction(@Body() body: any) {
+    console.log('BODY', body);
+    console.log(
+      'BODY VALUES',
+      body.Body.stkCallback.Amount,
+      body.Body.stkCallback.Msisdn,
+      body.Body.stkCallback.MerchantRequestID,
+      body.Body.stkCallback.CheckoutRequestID,
+      body.Body.stkCallback.ResultDesc,
+      body.Body.stkCallback.TinyPesaID,
+      body.Body.stkCallback.ResultCode,
+      body.Body.stkCallback.ExternalReference,
+    );
+    if (body.Body.stkCallback.ResultCode !== 0) {
+      this.chatGateway.server.emit('error', {
+        data: body.Body.stkCallback.ResultDesc,
+      });
 
+      return await this.prismaService.errorTinyCallback.create({
+        data: {
+          amount: body.Body.stkCallback.Amount,
+          msisdn: body.Body.stkCallback.Msisdn,
+          merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+          checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+          resultDesc: body.Body.stkCallback.ResultDesc,
+          tinyPesaID: body.Body.stkCallback.TinyPesaID,
+          resultCode: body.Body.stkCallback.ResultCode,
+          externalReference: body.Body.stkCallback.ExternalReference,
+        },
+      });
+    }
+    if (body.Body.stkCallback.ResultCode === 0) {
+      this.chatGateway.server.emit('success', {
+        data: body.Body.stkCallback.ResultDesc,
+      });
+
+      return await this.prismaService.tinyCallback.create({
+        data: {
+          amount: body.Body.stkCallback.Amount,
+          msisdn: body.Body.stkCallback.Msisdn,
+          merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+          checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+          resultDesc: body.Body.stkCallback.ResultDesc,
+          tinyPesaID: body.Body.stkCallback.TinyPesaID,
+          resultCode: body.Body.stkCallback.ResultCode,
+          externalReference: body.Body.stkCallback.ExternalReference,
+          callbackMetadata: {
+            create: {
+              Item: {
+                create: {
+                  Name: body.Body.stkCallback.CallbackMetadata.Item[0].Name,
+                  Value: body.Body.stkCallback.CallbackMetadata.Item[0].Value,
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+  }
   @ApiCreatedResponse({ type: 'Transaction' })
   @Roles(UserType.ADMIN, UserType.BUYER)
   @Get('callback')

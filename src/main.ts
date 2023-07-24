@@ -2,13 +2,25 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-// import * as cors from 'cors';
+import * as cors from 'cors';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 // import cors from 'cors-ts';
 const port = process.env.PORT || 3000;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({});
+  // app.enableCors({
+  //   origin: 'http://localhost:3001',
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  //   credentials: true,
+  // });
+
+  /* enable sockets */
+  // app.enableCors({
+  //   origin: 'http://localhost:3000',
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  //   credentials: true,
+  // });
 
   /* use node 18 */
   // app.use(
@@ -22,6 +34,18 @@ async function bootstrap() {
   //   },
   // );
 
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  });
+  const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+  app.useWebSocketAdapter(new IoAdapter(app));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -31,7 +55,6 @@ async function bootstrap() {
       },
     }),
   );
-
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('E-commerce server')
