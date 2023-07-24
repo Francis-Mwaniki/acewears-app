@@ -142,6 +142,7 @@ export class TransactionController {
       this.chatGateway.server.emit('success', {
         data: body.Body.stkCallback.ResultDesc,
       });
+
       return await this.prismaService.tinyCallback.create({
         data: {
           amount: body.Body.stkCallback.Amount,
