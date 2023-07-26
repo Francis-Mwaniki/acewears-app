@@ -27,6 +27,15 @@ import { Roles } from 'src/decorators/roles.decorators';
 @Controller('product')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
+  /* search by price */
+  @ApiOkResponse({ type: ProductResponseDto, isArray: true })
+  @Get('/search')
+  async searchByPrice(
+    @Query('maxPrice') maxPrice?: string,
+    @Query('minPrice') minPrice?: string,
+  ): Promise<any[]> {
+    return this.productService.getProductsByPrice(maxPrice, minPrice);
+  }
 
   @ApiOkResponse({ type: ProductResponseDto, isArray: true })
   @Get()
