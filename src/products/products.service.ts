@@ -6,10 +6,14 @@ import {
   GetProductsParams,
   whichUser,
 } from 'src/Utils.interfaces';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly chatGateWay: ChatGateway,
+  ) {}
   async getProductsByPrice(maxPrice?: string, minPrice?: string) {
     const price =
       maxPrice || minPrice
@@ -154,10 +158,14 @@ export class ProductsService {
       data: ProductImages,
     });
 
+    this.chatGateWay.server.emit('new-product', {
+      title: product.title,
+      data: `${product.title} is added to ${product.categoryType} category`,
+    });
+
     return new ProductResponseDto(product);
   }
 
-  /* add categories to categoryType */
   async updateProduct(id: number, body: UpdateProductDto) {
     /* find if id exist */
     const Product = await this.prismaService.product.findUnique({
@@ -178,6 +186,11 @@ export class ProductsService {
       data: {
         ...body,
       },
+    });
+
+    this.chatGateWay.server.emit('update-product', {
+      title: updateProduct.title,
+      data: `${updateProduct.title} is updated`,
     });
 
     return new ProductResponseDto(updateProduct);

@@ -14,7 +14,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: any) {
+  handleConnection(client: Socket) {
+    client.setMaxListeners(15);
     // Handle connection event
     console.log('connected');
   }

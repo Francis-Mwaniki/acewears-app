@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ContactDTO, CreateOrderDto } from './dto/orders/create-order.dto';
 import { createContactParams } from 'src/Utils.interfaces';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   async getOrders(userId: number) {
     const orders = await this.prismaService.order.findMany({
@@ -38,6 +42,51 @@ export class OrdersService {
     return orders;
   }
 
+  async getAllUsersAdmin() {
+    const users = await this.prismaService.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        contacts: true,
+        buyer_messages: true,
+        orders: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return users;
+  }
+  async getAllOrdersAdmin() {
+    const orders = await this.prismaService.order.findMany({
+      select: {
+        id: true,
+        completed: true,
+        quantity: true,
+        createdAt: true,
+        product: {
+          select: {
+            title: true,
+            price: true,
+            image: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        },
+        user: true,
+        transactions: true,
+        paypal_payments: true,
+      },
+    });
+
+    return orders;
+  }
   async getOrder(id: number, userId: number) {
     const order = await this.prismaService.order.findUnique({
       where: {
@@ -113,6 +162,13 @@ export class OrdersService {
           id: true,
           completed: true,
           quantity: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
           createdAt: true,
           user_id: true,
           product: {
@@ -131,6 +187,10 @@ export class OrdersService {
           transactions: true,
           paypal_payments: true,
         },
+      });
+      this.chatGateway.server.emit('order-update', {
+        title: 'Order Updated',
+        data: ` order of id ${updatedOrder.id} was updated by ${updatedOrder.user.name} at ${updatedOrder.createdAt}`,
       });
       return updatedOrder;
     } else {
@@ -155,6 +215,13 @@ export class OrdersService {
           quantity: true,
           createdAt: true,
           user_id: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
           product: {
             select: {
               title: true,
@@ -178,6 +245,10 @@ export class OrdersService {
       if (order.user_id !== userId) {
         throw new NotFoundException('Order not found');
       }
+      this.chatGateway.server.emit('order-create', {
+        title: 'order created',
+        data: `order of id ${order.id} was created by ${order.user.name} at ${order.createdAt}`,
+      });
       return order;
     }
   }
