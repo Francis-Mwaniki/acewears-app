@@ -17,17 +17,36 @@ import { Roles } from 'src/decorators/roles.decorators';
 import { UserType } from '@prisma/client';
 import { whichUser } from 'src/Utils.interfaces';
 import { User } from 'src/user/decorator/user.decorator';
+import { ChatGateway } from 'src/chat/chat.gateway';
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
-
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
   @ApiCreatedResponse({ description: 'Order created' })
   @Roles(UserType.BUYER, UserType.ADMIN)
   @Post()
   async createOrder(@Body() body: CreateOrderDto, @User() user: whichUser) {
     return this.ordersService.createOrder(body, user.id);
   }
+
+  @ApiCreatedResponse({ description: 'Admin retrieve all orders' })
+  @Roles(UserType.ADMIN)
+  @Get('admin-all-orders')
+  async getAllOrdersAdmin() {
+    return this.ordersService.getAllOrdersAdmin();
+  }
+
+  /* admin retrieve all users  */
+  @ApiCreatedResponse({ description: 'Admin retrieve all users' })
+  @Roles(UserType.ADMIN)
+  @Get('admin-all-users')
+  async getAllUsersAdmin() {
+    return this.ordersService.getAllUsersAdmin();
+  }
+
   @Get('address/:id')
   @ApiOkResponse({ description: 'Contact retrieved' })
   @Roles(UserType.BUYER, UserType.ADMIN)

@@ -84,14 +84,14 @@ export class ProductsController {
   async updateProduct(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateProductDto,
-    @User() user: whichUser,
+    // @User() user: whichUser,
   ) {
-    const admin = await this.productService.getAdminByProductId(id);
-    if (admin.id !== user.id) {
-      throw new UnauthorizedException(
-        'You are not authorized to update this Product',
-      );
-    }
+    // const admin = await this.productService.getAdminByProductId(id);
+    // if (admin.id !== user.id) {
+    //   throw new UnauthorizedException(
+    //     'You are not authorized to update this Product',
+    //   );
+    // }
 
     return this.productService.updateProduct(id, body);
   }
@@ -101,12 +101,12 @@ export class ProductsController {
   @Delete(':id')
   async deleteProduct(@Param('id') id: number, @User() user: whichUser) {
     console.log('userId', user);
-    const admin = await this.productService.getAdminByProductId(id);
-    if (admin.id !== user.id) {
-      throw new UnauthorizedException(
-        'You are not authorized to delete this Product',
-      );
-    }
+    // const admin = await this.productService.getAdminByProductId(id);
+    // if (admin.id !== user.id) {
+    //   throw new UnauthorizedException(
+    //     'You are not authorized to delete this Product',
+    //   );
+    // }
     return this.productService.deleteProduct(id);
   }
   @ApiOkResponse()

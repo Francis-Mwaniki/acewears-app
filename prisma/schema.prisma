@@ -50,29 +50,29 @@ model Image {
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
   product_id               Int
-  product                  Product @relation(fields: [product_id], references: [id])
+  product                  Product @relation(fields: [product_id], references: [id],  onDelete: Cascade)
 }
 
 model Message {
   id                    Int   @id @default(autoincrement())
   message               String
   product_id               Int
-  product                  Product @relation(fields: [product_id], references: [id])
+  product                  Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
   admin_id            Int
-  admin               User @relation("buyer_messages", fields: [admin_id], references: [id])
+  admin               User @relation("buyer_messages", fields: [admin_id], references: [id], onDelete: Cascade)
   buyer_id              Int
-  buyer                 User @relation("admin_messages", fields: [buyer_id], references: [id])
+  buyer                 User @relation("admin_messages", fields: [buyer_id], references: [id], onDelete: Cascade)
 }
 model Order {
   id          Int         @id @default(autoincrement())
-  user        User        @relation(fields: [user_id], references: [id])
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     Int
   product_id   Int
-  product     Product     @relation(fields: [product_id], references: [id])
+  product     Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   quantity    Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  contact     Contact     @relation(fields: [contact_id], references: [id])
+  contact     Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   contact_id  Int         @default(1)
   completed   Boolean     @default(false)
   delivered   Boolean     @default(false)
@@ -92,7 +92,7 @@ model Transaction {
   supporter_id        String
   external_reference  String
   mpesa_receipt       String?
-  order               Order        @relation(fields: [order_id], references: [id])
+  order               Order        @relation(fields: [order_id], references: [id], onDelete: Cascade)
   order_id            Int
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -118,9 +118,9 @@ model PaypalPayment {
   payment_method PaymentMethod
   currency String
   status TransactionStatus
-  order Order @relation(fields: [order_id], references: [id])
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
   order_id Int
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id Int
 }
 // schema.prisma

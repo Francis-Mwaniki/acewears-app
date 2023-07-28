@@ -5,10 +5,14 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { SignInDto } from 'src/dtos/auth.dto';
 import { UserType } from '@prisma/client';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
   async signup(
     { name, phone, email, password }: SignUpParams,
     userType: UserType,
@@ -34,6 +38,10 @@ export class AuthService {
       } as any,
     });
     const token = this.generateToken(newUser.name, newUser.id);
+    this.chatGateway.server.emit('user', {
+      title: 'new user',
+      data: `${newUser.name} signed up`,
+    });
     // return user
     return { user: newUser, token };
   }
