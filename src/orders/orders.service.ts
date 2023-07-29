@@ -249,6 +249,41 @@ export class OrdersService {
         title: 'order created',
         data: `order of id ${order.id} was created by ${order.user.name} at ${order.createdAt}`,
       });
+
+      /* listen for order id and change completed to true */
+      const orderComplete = this.chatGateway.server.on(
+        'order-completed',
+        (id: number) => {
+          if (id === order.id) {
+            this.prismaService.order.update({
+              where: {
+                id: order.id,
+              },
+              data: {
+                completed: true,
+              },
+            });
+          }
+        },
+      );
+      console.log('order complete', orderComplete);
+      const orderIsComplete = this.chatGateway.server.on(
+        'order-Notcompleted',
+        (id: number) => {
+          if (id === order.id) {
+            this.prismaService.order.update({
+              where: {
+                id: order.id,
+              },
+              data: {
+                completed: true,
+              },
+            });
+          }
+        },
+      );
+      console.log('order complete', orderIsComplete);
+
       return order;
     }
   }
