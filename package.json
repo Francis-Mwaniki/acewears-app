@@ -10,8 +10,8 @@
     "string-width": "4.1.0"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "yarn": ">=1.22.0"
+    "node": "16.0.0",
+    "yarn": "1.22.0"
   },
   "scripts": {
     "build": "nest build",
