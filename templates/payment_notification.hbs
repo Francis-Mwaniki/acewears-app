@@ -1,0 +1,53 @@
+<!-- email_templates/payment_notification.hbs -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Payment Notification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      .email-content {
+        padding: 20px;
+        background-color: #f2f2f2;
+      }
+
+      .payment-details {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      .result-description {
+        font-weight: bold;
+      }
+
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-content">
+      <h1>Payment Notification</h1>
+      <div class="payment-details">
+        <p><strong>Amount:</strong> {{ amount }}</p>
+        <p><strong>MSISDN:</strong> {{ msisdn }}</p>
+        <p><strong>Merchant Request ID:</strong> {{ merchantRequestID }}</p>
+        <p><strong>Checkout Request ID:</strong> {{ checkoutRequestID }}</p>
+        <p class="result-description"><strong>Result Description:</strong> {{ resultDesc }}</p>
+      </div>
+    </div>
+    <div class="footer">
+      This is an automated email. Please do not reply.
+    </div>
+  </body>
+</html>

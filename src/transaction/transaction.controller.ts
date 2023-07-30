@@ -27,6 +27,7 @@ import {
   InitializeTransactionDto,
 } from './dto/intiateTransaction.dto';
 import { User } from 'src/user/decorator/user.decorator';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @ApiTags('transaction')
 @Controller('transaction')
@@ -35,6 +36,7 @@ export class TransactionController {
     private readonly transactionService: TransactionService,
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly mailingServices: MailingService,
   ) {}
 
   @ApiCreatedResponse({ type: 'Transaction' })
@@ -125,6 +127,16 @@ export class TransactionController {
         data: body.Body.stkCallback.ResultDesc,
       });
 
+      const data = {
+        amount: body.Body.stkCallback.Amount,
+        msisdn: body.Body.stkCallback.Msisdn,
+        merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+        checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+        resultDesc: body.Body.stkCallback.ResultDesc,
+      };
+
+      this.mailingServices.sendMail('Error', 'payment_notification', data);
+
       return await this.prismaService.errorTinyCallback.create({
         data: {
           amount: body.Body.stkCallback.Amount,
@@ -142,6 +154,14 @@ export class TransactionController {
       this.chatGateway.server.emit('success', {
         data: body.Body.stkCallback.ResultDesc,
       });
+      const data = {
+        amount: body.Body.stkCallback.Amount,
+        msisdn: body.Body.stkCallback.Msisdn,
+        merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+        checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+        resultDesc: body.Body.stkCallback.ResultDesc,
+      };
+      this.mailingServices.sendMail('success', 'payment_notification', data);
 
       return await this.prismaService.tinyCallback.create({
         data: {

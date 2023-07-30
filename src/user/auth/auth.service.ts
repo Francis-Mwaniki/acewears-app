@@ -6,12 +6,14 @@ import * as jwt from 'jsonwebtoken';
 import { SignInDto } from 'src/dtos/auth.dto';
 import { UserType } from '@prisma/client';
 import { ChatGateway } from 'src/chat/chat.gateway';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly mailingService: MailingService,
   ) {}
   async signup(
     { name, phone, email, password }: SignUpParams,
@@ -41,6 +43,10 @@ export class AuthService {
     this.chatGateway.server.emit('user', {
       title: 'new user',
       data: `${newUser.name} signed up`,
+    });
+    this.mailingService.sendMail('Welcome', 'welcome', {
+      name: newUser.name,
+      email: newUser.email,
     });
     // return user
     return { user: newUser, token };
