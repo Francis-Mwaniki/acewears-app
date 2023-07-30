@@ -5,13 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "resolutions": {
-    "wrap-ansi": "7.0.0",
-    "string-width": "4.1.0"
-  },
   "engines": {
-    "node": "16.0.0",
-    "npm": "8.0.0"
+    "node": "12.11.1",
+    "npm": "6.14.8"
   },
   "scripts": {
     "build": "nest build",
