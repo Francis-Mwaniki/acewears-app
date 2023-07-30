@@ -3,12 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ContactDTO, CreateOrderDto } from './dto/orders/create-order.dto';
 import { createContactParams } from 'src/Utils.interfaces';
 import { ChatGateway } from 'src/chat/chat.gateway';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly mailingService: MailingService,
   ) {}
 
   async getOrders(userId: number) {
@@ -249,6 +251,8 @@ export class OrdersService {
         title: 'order created',
         data: `order of id ${order.id} was created by ${order.user.name} at ${order.createdAt}`,
       });
+
+      this.mailingService.sendMail('orders', 'order', order);
 
       /* listen for order id and change completed to true */
       const orderComplete = this.chatGateway.server.on(
