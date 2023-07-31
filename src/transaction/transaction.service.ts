@@ -190,20 +190,7 @@ export class TransactionService {
       },
       include: {
         user: true,
-        order: {
-          select: {
-            id: true,
-            updatedAt: true,
-            product: {
-              select: {
-                title: true,
-                price: true,
-                description: true,
-                image: true,
-              },
-            },
-          },
-        },
+        order: true,
       },
     });
     if (!findPaypal) {

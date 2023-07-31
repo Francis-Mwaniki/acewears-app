@@ -5,15 +5,27 @@ import {
   IsNumber,
   IsBoolean,
   IsEmail,
+  IsArray,
 } from 'class-validator';
+import { OrderItem } from 'src/Utils.interfaces';
 
 export class CreateOrderDto {
-  @IsPositive()
-  quantity: number;
-
+  /* {
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    },
+		{
+			"productId":2,
+			"quantity":3
+		}
+  ]
+}
+ */
   @IsNotEmpty()
-  @IsNumber()
-  productId: number;
+  @IsArray()
+  items: OrderItem[];
 }
 export class ContactDTO {
   @IsString()

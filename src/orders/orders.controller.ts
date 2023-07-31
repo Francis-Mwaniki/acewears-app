@@ -9,13 +9,14 @@ import {
   Body,
   Post,
   Put,
+  HttpException,
 } from '@nestjs/common';
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { ContactDTO, CreateOrderDto } from './dto/orders/create-order.dto';
 import { Roles } from 'src/decorators/roles.decorators';
-import { UserType } from '@prisma/client';
-import { whichUser } from 'src/Utils.interfaces';
+import { Order, PaymentMethod, PaymentStatus, UserType } from '@prisma/client';
+import { OrderItem, whichUser } from 'src/Utils.interfaces';
 import { User } from 'src/user/decorator/user.decorator';
 import { ChatGateway } from 'src/chat/chat.gateway';
 @ApiTags('Orders')
@@ -28,8 +29,25 @@ export class OrdersController {
   @ApiCreatedResponse({ description: 'Order created' })
   @Roles(UserType.BUYER, UserType.ADMIN)
   @Post()
-  async createOrder(@Body() body: CreateOrderDto, @User() user: whichUser) {
-    return this.ordersService.createOrder(body, user.id);
+  async createOrder(
+    @Body()
+    orderData: {
+      userId: number;
+      contactId: number;
+      items: OrderItem[];
+      paymentMethod?: PaymentMethod;
+      paymentStatus?: PaymentStatus;
+    },
+    @User() user: whichUser,
+  ) {
+    try {
+      if (orderData.items.length === null || orderData.items.length === 0) {
+        return { message: 'Order items cannot be empty' };
+      }
+      return this.ordersService.createOrder(orderData, user.id);
+    } catch (error) {
+      return new HttpException('Order not created', 500);
+    }
   }
 
   @ApiCreatedResponse({ description: 'Admin retrieve all orders' })
@@ -97,14 +115,21 @@ export class OrdersController {
 
   /* update */
   @ApiCreatedResponse({ description: 'Order updated' })
-  @Roles(UserType.ADMIN)
+  @Roles(UserType.ADMIN, UserType.BUYER)
   @Put(':id')
   async updateOrder(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: CreateOrderDto,
+    @Body() updatedOrderData: Partial<Order>,
     @User() user: whichUser,
   ) {
-    return this.ordersService.updateOrder(body, user.id, id);
+    try {
+      if (id === null || id === undefined) {
+        return { message: 'Order Id cannot be empty' };
+      }
+      return this.ordersService.updateOrder(id, updatedOrderData, user.id);
+    } catch (error) {
+      return new HttpException('Order not updated', 500);
+    }
   }
 
   @ApiCreatedResponse({ description: 'Order deleted by Admin' })
