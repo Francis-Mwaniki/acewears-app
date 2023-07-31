@@ -39,8 +39,8 @@ model Product {
   updated_at            DateTime @updatedAt
   image               Image[]
   admin_id            Int
+  orders    OrderItem[]
   admin               User @relation(fields: [admin_id], references: [id])
-  orders              Order[]
   messages              Message[]
 }
 
@@ -67,18 +67,30 @@ model Order {
   id          Int         @id @default(autoincrement())
   user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     Int
-  product_id   Int
-  product     Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   quantity    Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   contact     Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   contact_id  Int         @default(1)
+   items     OrderItem[]
+  payment_method      PaymentMethod @default(MPESA)
+  payment_status     PaymentStatus @default(PENDING)
+  total       Float      @default(0)
   completed   Boolean     @default(false)
   delivered   Boolean     @default(false)
   transactions Transaction[]
-  // tiny_callbacks TinyCallback[]
+  tiny_callbacks TinyCallback[]
+  error_tiny_callbacks ErrorTinyCallback[]
   paypal_payments      PaypalPayment[]
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  order      Order    @relation(fields: [orderId], references: [id] , onDelete: Cascade)
+  orderId    Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  Int
 }
 model Transaction {
   id                   String       @id @default(uuid())
@@ -153,11 +165,13 @@ model TinyCallback {
   callbackMetadata  Json?
   tinyPesaID        String
   externalReference String
-  // order             Order   @relation(fields: [order_id], references: [id])
-  // order_id          Int @default(1)
+  order             Order   @relation(fields: [order_id], references: [id])
+  order_id          Int @default(1)
   amount            Int
   msisdn            String
   createdAt         DateTime @default(now())
+  payment_method      PaymentMethod @default(MPESA)
+  status              PaymentStatus @default(COMPLETED)
 }
 model ErrorTinyCallback {
   id                 Int     @id @default(autoincrement())
@@ -167,11 +181,13 @@ model ErrorTinyCallback {
   resultDesc        String
   tinyPesaID        String
   externalReference String
-  // order             Order   @relation(fields: [order_id], references: [id])
-  // order_id          Int @default(1)
+  order             Order   @relation(fields: [order_id], references: [id])
+  order_id          Int @default(1)
   amount            Int
   msisdn            String
   createdAt         DateTime @default(now())
+  payment_method      PaymentMethod @default(MPESA)
+  status              PaymentStatus @default(FAILED)
 }
 
 enum PaymentMethod {

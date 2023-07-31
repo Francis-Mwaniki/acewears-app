@@ -1,4 +1,9 @@
-import { PaymentMethod, TransactionStatus, categoryType } from '@prisma/client';
+import {
+  PaymentMethod,
+  PaymentStatus,
+  TransactionStatus,
+  categoryType,
+} from '@prisma/client';
 export interface SignUpParams {
   name: string;
   phone: string;
@@ -9,6 +14,10 @@ export interface SignUpParams {
 export interface SignInParams {
   email: string;
   password: string;
+}
+export interface OrderItem {
+  productId: number;
+  quantity: number; // Add the 'quantity' property here
 }
 
 export interface GetProductsParams {
@@ -102,4 +111,10 @@ export interface ErrorParams {
   ExternalReference: string;
   Amount: number;
   Msisdn: string;
+}
+export interface methodsOfPayment {
+  paymentMethod: PaymentMethod;
+}
+export interface statusOfPayment {
+  paymentStatus: PaymentStatus;
 }

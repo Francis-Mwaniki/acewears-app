@@ -28,6 +28,7 @@ import {
 } from './dto/intiateTransaction.dto';
 import { User } from 'src/user/decorator/user.decorator';
 import { MailingService } from 'src/mailing/mailing.service';
+import { OrdersService } from 'src/orders/orders.service';
 
 @ApiTags('transaction')
 @Controller('transaction')
@@ -37,6 +38,7 @@ export class TransactionController {
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
     private readonly mailingServices: MailingService,
+    private readonly orderService: OrdersService,
   ) {}
 
   @ApiCreatedResponse({ type: 'Transaction' })
@@ -134,6 +136,25 @@ export class TransactionController {
         checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
         resultDesc: body.Body.stkCallback.ResultDesc,
       };
+      const orderId = parseInt(body.Body.stkCallback.ExternalReference) || 1;
+      const order = await this.prismaService.order.findUnique({
+        where: {
+          id: orderId,
+        },
+      });
+      if (order) {
+        const userId = order.user_id;
+        const orders = await this.orderService.updateOrder(
+          orderId,
+          {
+            id: order.id,
+            payment_method: 'MPESA',
+            payment_status: 'COMPLETED',
+          },
+          userId,
+        );
+        console.log('ORDER', orders);
+      }
 
       this.mailingServices.sendMail('Error', 'payment_notification', data);
 
@@ -154,6 +175,25 @@ export class TransactionController {
       this.chatGateway.server.emit('success', {
         data: body.Body.stkCallback.ResultDesc,
       });
+      const orderId = parseInt(body.Body.stkCallback.ExternalReference) || 1;
+      const order = await this.prismaService.order.findUnique({
+        where: {
+          id: orderId,
+        },
+      });
+      if (order) {
+        const userId = order.user_id;
+        const orders = await this.orderService.updateOrder(
+          orderId,
+          {
+            id: order.id,
+            payment_method: 'MPESA',
+            payment_status: 'FAILED',
+          },
+          userId,
+        );
+        console.log('ORDER', orders);
+      }
       const data = {
         amount: body.Body.stkCallback.Amount,
         msisdn: body.Body.stkCallback.Msisdn,
