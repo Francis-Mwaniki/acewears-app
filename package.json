@@ -9,9 +9,9 @@
     "wrap-ansi": "7.0.0"
   },
   "scripts": {
-    "build": "nest build",
+    "build": "CI=false nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "CI=false nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "nest start --prod",
