@@ -6,12 +6,17 @@
   "private": true,
   "license": "UNLICENSED",
   "resolutions": {
-    "wrap-ansi": "7.0.0"
+    "wrap-ansi": "7.0.0" 
+  },
+  "engines": {
+    "node": "^16.14.0",
+    "npm": "^8.3.0"
+  
   },
   "scripts": {
-    "build": "CI=false nest build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "CI=false nest start",
+    "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "nest start --prod",
