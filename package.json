@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "resolutions": {
-    "wrap-ansi": "8.0.0"
+    "wrap-ansi": "7.0.0"
   },
   "scripts": {
     "build": "nest build",
