@@ -1,3 +1,5 @@
+import { PaymentMethod, PaymentStatus } from '@prisma/client';
+import { Expose } from 'class-transformer';
 import {
   IsString,
   IsPositive,
@@ -6,6 +8,7 @@ import {
   IsBoolean,
   IsEmail,
   IsArray,
+  IsEnum,
 } from 'class-validator';
 import { OrderItem } from 'src/Utils.interfaces';
 
@@ -55,4 +58,29 @@ export class ContactDTO {
   @IsEmail()
   @IsNotEmpty()
   email: string;
+}
+
+export class updateOrderDto {
+  /*   PaymentStatus: PaymentStatus;
+  PaymentMethod: PaymentMethod;
+  completed: boolean;
+  delivered: boolean; */
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  id: number;
+
+  @IsBoolean()
+  completed: boolean;
+
+  @IsBoolean()
+  delivered: boolean;
+
+  @IsEnum(PaymentMethod)
+  PaymentMethod: PaymentMethod;
+
+  @IsEnum(PaymentStatus)
+  PaymentStatus: PaymentStatus;
+
+  /* expose */
 }

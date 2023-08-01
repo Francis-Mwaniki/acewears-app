@@ -28,6 +28,7 @@ export class OrdersService {
         quantity: true,
         createdAt: true,
         user_id: true,
+        total: true,
         items: {
           select: {
             id: true,
@@ -452,7 +453,7 @@ export class OrdersService {
     orderId: number,
     updatedOrderData: Partial<Order>,
     userId: number,
-  ): Promise<Order> {
+  ): Promise<any> {
     // Fetch the existing order from the database using the orderId and userId
     console.log('orderId', orderId);
 
@@ -462,6 +463,32 @@ export class OrdersService {
     const existingOrder = await this.prismaService.order.findUnique({
       where: {
         id: orderId,
+      },
+      select: {
+        user_id: true,
+        completed: true,
+        delivered: true,
+        payment_status: true,
+        payment_method: true,
+        quantity: true,
+        total: true,
+        items: {
+          select: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                price: true,
+                image: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -478,14 +505,67 @@ export class OrdersService {
         `Order with ID ${orderId} does not belong to User ID ${userId}.`,
       );
     }
+    // const {
+    //   payment_status,
+    //   payment_method,
+    //   completed,
+    //   delivered,
+    //   quantity,
+    //   total,
+    // } = updatedOrderData;
 
+    const {
+      payment_status,
+      payment_method,
+      completed,
+      quantity,
+      total,
+      delivered,
+    } = existingOrder;
+
+    console.log('existingOrder', existingOrder);
     const updatedOrder = await this.prismaService.order.update({
       where: {
         id: orderId,
       },
-      data: updatedOrderData,
+      data: {
+        payment_status: updatedOrderData.payment_status || payment_status,
+        payment_method: updatedOrderData.payment_method || payment_method,
+        completed: updatedOrderData.completed || completed,
+        delivered: updatedOrderData.delivered || delivered,
+        quantity: updatedOrderData.quantity || quantity,
+        total: updatedOrderData.total || total,
+      },
+      select: {
+        id: true,
+        user_id: true,
+        completed: true,
+        quantity: true,
+        contact: true,
+        total: true,
+        createdAt: true,
+        updatedAt: true,
+        payment_method: true,
+        payment_status: true,
+        delivered: true,
+        items: {
+          select: {
+            id: true,
+            orderId: true,
+            product: true,
+            quantity: true,
+          },
+        },
+      },
     });
+    console.log('updatedOrder', updatedOrder);
 
+    // const updatedOrder = await this.prismaService.order.update({
+    //   where: {
+    //     id: orderId,
+    //   },
+    //   data: updatedOrderData,
+    // });
     return updatedOrder;
   }
 
