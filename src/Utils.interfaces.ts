@@ -118,3 +118,15 @@ export interface methodsOfPayment {
 export interface statusOfPayment {
   paymentStatus: PaymentStatus;
 }
+
+export interface CreateOrderParams {
+  items: { productId: number; quantity: number }[];
+}
+
+export interface UpdateOrderParams {
+  id: number;
+  PaymentStatus: PaymentStatus;
+  PaymentMethod: PaymentMethod;
+  completed: boolean;
+  delivered: boolean;
+}

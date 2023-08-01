@@ -73,7 +73,7 @@ model Order {
   contact     Contact     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   contact_id  Int         @default(1)
    items     OrderItem[]
-  payment_method      PaymentMethod @default(MPESA)
+  payment_method      PaymentMethod @default(NOTSPECIFIED)
   payment_status     PaymentStatus @default(PENDING)
   total       Float      @default(0)
   completed   Boolean     @default(false)
@@ -191,9 +191,11 @@ model ErrorTinyCallback {
 }
 
 enum PaymentMethod {
+  NOTSPECIFIED
   CASH
   MPESA
   PAYPAL
+  BINANCE
 }
 enum PaymentStatus {
   COMPLETED
