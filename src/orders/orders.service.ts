@@ -363,10 +363,13 @@ export class OrdersService {
         user_id: user,
       },
     });
+    if (!contactIdWithUserId) {
+      throw new NotFoundException('Address not found');
+    }
     console.log('contactIdWithUserId', contactIdWithUserId);
 
     // Create the order using Prisma's create method
-    return this.prismaService.order.create({
+    const createOrder = this.prismaService.order.create({
       data: {
         total,
         user: {
@@ -399,8 +402,47 @@ export class OrdersService {
             product: true,
           },
         },
+        contact: true,
+        user: true,
       },
     });
+    console.log('createOrder', createOrder);
+    const contactUser = await this.prismaService.contact.findFirst({
+      where: {
+        user_id: user,
+      },
+      select: {
+        email: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    this.chatGateway.server.emit('order-create', {
+      title: 'order created',
+      data: `order of id ${(await createOrder).id} was created by ${
+        contactUser.user.email
+      } at ${(await createOrder).updatedAt}`,
+    });
+
+    const { payment_method, payment_status, id, contact } = await createOrder;
+
+    this.mailingService.sendMail(
+      'Order Initiated',
+      contactUser.email,
+      'createOrder',
+      {
+        payment_method,
+        payment_status,
+        id,
+        contact,
+      },
+    );
+
+    return createOrder;
   }
 
   // async updateOrder({ quantity }: CreateOrderDto, id: number, userId: number) {
@@ -552,7 +594,19 @@ export class OrdersService {
           select: {
             id: true,
             orderId: true,
-            product: true,
+            product: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                price: true,
+                image: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
             quantity: true,
           },
         },
@@ -560,12 +614,36 @@ export class OrdersService {
     });
     console.log('updatedOrder', updatedOrder);
 
-    // const updatedOrder = await this.prismaService.order.update({
-    //   where: {
-    //     id: orderId,
-    //   },
-    //   data: updatedOrderData,
-    // });
+    const contactUser = await this.prismaService.contact.findFirst({
+      where: {
+        user_id: user_id,
+      },
+      select: {
+        email: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    this.chatGateway.server.emit('order-update', {
+      title: 'order created',
+      data: `order of id ${updatedOrder.id} was update by ${contactUser.user.email} paid with ${updatedOrder.payment_method} at ${updatedOrder.updatedAt}`,
+    });
+
+    this.mailingService.sendMail('orders', contactUser.email, 'orders', {
+      contactName: contactUser.user.name,
+      contact: updatedOrder.contact,
+      id: updatedOrder.id,
+      quantity: updatedOrder.quantity,
+      payment_method: updatedOrder.payment_method,
+      payment_status: updatedOrder.payment_status,
+      total: updatedOrder.total,
+      updatedAt: updatedOrder.updatedAt,
+      items: updatedOrder.items,
+    });
     return updatedOrder;
   }
 

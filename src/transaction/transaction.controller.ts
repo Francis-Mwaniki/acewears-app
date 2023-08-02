@@ -128,14 +128,6 @@ export class TransactionController {
       this.chatGateway.server.emit('error', {
         data: body.Body.stkCallback.ResultDesc,
       });
-
-      const data = {
-        amount: body.Body.stkCallback.Amount,
-        msisdn: body.Body.stkCallback.Msisdn,
-        merchantRequestID: body.Body.stkCallback.MerchantRequestID,
-        checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
-        resultDesc: body.Body.stkCallback.ResultDesc,
-      };
       const orderId = parseInt(body.Body.stkCallback.ExternalReference) || 1;
       const order = await this.prismaService.order.findUnique({
         where: {
@@ -149,14 +141,43 @@ export class TransactionController {
           {
             id: order.id,
             payment_method: 'MPESA',
-            payment_status: 'COMPLETED',
+            payment_status: 'FAILED',
           },
           userId,
         );
-        console.log('ORDER', orders);
+        console.log('ORDER', orders, 'order id', orderId);
       }
+      const contact = await this.prismaService.contact.findUnique({
+        where: {
+          id: order.contact_id,
+        },
+      });
+      const data = {
+        amount: body.Body.stkCallback.Amount,
+        msisdn: body.Body.stkCallback.Msisdn,
+        merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+        checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+        resultDesc: body.Body.stkCallback.ResultDesc,
+        orderId: body.Body.stkCallback.ExternalReference,
+        status: order.payment_status,
+        paymentMethod: order.payment_method,
+        contact: contact,
+        transactionDate: new Date().toLocaleDateString(),
+        receiptNumber: Math.floor(Math.random() * 1000000000),
+      };
 
-      this.mailingServices.sendMail('Error', 'payment_notification', data);
+      // this.mailingServices.sendMail(
+      //   'Error',
+      //   'francismwaniki630@gmail.com',
+      //   'Admin',
+      //   data,
+      // );
+      this.mailingServices.sendMail(
+        'Error',
+        contact.email,
+        'payment_notification',
+        data,
+      );
 
       return await this.prismaService.errorTinyCallback.create({
         data: {
@@ -188,20 +209,42 @@ export class TransactionController {
           {
             id: order.id,
             payment_method: 'MPESA',
-            payment_status: 'FAILED',
+            payment_status: 'COMPLETED',
           },
           userId,
         );
         console.log('ORDER', orders);
       }
+      const contact = await this.prismaService.contact.findUnique({
+        where: {
+          id: order.contact_id,
+        },
+      });
       const data = {
         amount: body.Body.stkCallback.Amount,
         msisdn: body.Body.stkCallback.Msisdn,
         merchantRequestID: body.Body.stkCallback.MerchantRequestID,
         checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
         resultDesc: body.Body.stkCallback.ResultDesc,
+        orderId: body.Body.stkCallback.ExternalReference,
+        status: order.payment_status,
+        paymentMethod: order.payment_method,
+        contact: contact,
+        transactionDate: new Date().toLocaleDateString(),
+        receiptNumber: Math.floor(Math.random() * 1000000000),
       };
-      this.mailingServices.sendMail('success', 'payment_notification', data);
+      this.mailingServices.sendMail(
+        'success',
+        contact.email,
+        'payment_notification',
+        data,
+      );
+      this.mailingServices.sendMail(
+        'success',
+        'francismwaniki630@gmail.com',
+        'Admin',
+        data,
+      );
 
       return await this.prismaService.tinyCallback.create({
         data: {

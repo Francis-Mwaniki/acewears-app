@@ -45,12 +45,17 @@ export class MailingService {
     this.mailerService.addTransporter('gmail', config);
   }
 
-  public async sendMail(subject: string, direction: string, data: any) {
+  public async sendMail(
+    subject: string,
+    email: string,
+    direction: string,
+    data: any,
+  ) {
     await this.setTransport();
     this.mailerService
       .sendMail({
         transporterName: 'gmail',
-        to: 'francismwaniki@kabarak.ac.ke', // list of receivers
+        to: email,
         from: 'francismwaniki630@gmail.com', // sender address
         subject: `${subject}`,
         template: `${direction}`,

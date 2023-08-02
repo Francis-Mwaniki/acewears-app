@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Order Status Update</title>
+    <title>Order Initiated</title>
   </head>
   <body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;">
     <div style="padding: 20px; background-color: #f2f2f2;">
       <h1 style="color: #007bff;">Hello {{ contact.contactName }},</h1>
-      <p>Your order with ID {{ id }}  {{ payment_status }} paid with {{ payment_method }} has been processed.</p>
-      <p>Thank you for shopping with us. We hope to see you again soon.</p>
+      <p>Your order if ID {{ id }} has been Intiated</p>
     </div>
+    
     <div style="padding: 20px; background-color: #f2f2f2;">
       <h2 style="color: #007bff;">Order Details</h2>
       <p {% if id %}>Order ID: {{ id }}</p>
       <p {% if payment_status %}>Order Status: {{ payment_status }}</p>
-      
-      <p {% if quantity %}>Order Quantity: {{ quantity }}</p>
+      <p {% if payment_method %}>Payment Method: {{ payment_method }}</p>
       <p {% if contact %}>Contact Name: {{ contact.contactName }}</p>
+      <p {% if contact %}>Address: {{ contact.address }}</p>
       <p {% if contact %}>Zip Code: {{ contact.zipCode }}</p>
       <p {% if contact %}>City: {{ contact.city }}</p>
       <p {% if contact %}>Country: {{ contact.country }}</p>
       <p {% if contact %}>Phone: {{ contact.phone }}</p>
     </div>
-    <h2 style="color: #007bff;">Order Items</h2>
-    <p style="padding: 20px; background-color: #f2f2f2;">
-   To view your order click <a href="https://www.acewears.co.ke/orders">here</a>.
-    </p>
-   
+    <div style="padding: 20px; background-color: #f2f2f2;">
+      <h2 style="color: #007bff;">Please complete you payment</h2>
+    
     <div style="text-align: center; font-size: 12px; color: #777;">
       This is an automated email. Please do not reply.
     </div>
