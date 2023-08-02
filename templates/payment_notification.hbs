@@ -1,4 +1,3 @@
-<!-- email_templates/payment_notification.hbs -->
 
 <!DOCTYPE html>
 <html>
@@ -44,10 +43,32 @@
         <p><strong>Merchant Request ID:</strong> {{ merchantRequestID }}</p>
         <p><strong>Checkout Request ID:</strong> {{ checkoutRequestID }}</p>
         <p class="result-description"><strong>Result Description:</strong> {{ resultDesc }}</p>
+
+       
+          <p><strong>Order ID:</strong> {{ orderId }}</p>
+      
+
+          <p><strong>Receipt Number:</strong> {{ receiptNumber }}</p>
+      
+
+   
+          <p><strong>Transaction Date:</strong> {{transactionDate}}</p>
+      
+
+          <p><strong>Phone Number:</strong> {{ contact.phone }}</p>
+      
+
+          <p><strong>Payment method:</strong> {{ paymentMethod }}</p>
+
+          <p><strong>Status</strong> {{ status }}</p>
+      
+       
       </div>
     </div>
     <div class="footer">
-      This is an automated email. Please do not reply.
+      <p>
+        This email was sent to you by <a href="https://www.acewears.co.ke/">Acewears community</a>
+      </p>
     </div>
   </body>
 </html>

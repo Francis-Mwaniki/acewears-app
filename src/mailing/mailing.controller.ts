@@ -6,6 +6,11 @@ export class MailingController {
   constructor(readonly mailingService: MailingService) {}
   @Get()
   public sendMail() {
-    this.mailingService.sendMail('test', 'action', { code: 'test' });
+    this.mailingService.sendMail(
+      'test',
+      'francismwaniki630@gmail.com',
+      'action',
+      { code: 'test' },
+    );
   }
 }

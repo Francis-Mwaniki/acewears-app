@@ -1,0 +1,25 @@
+<html>
+<head>
+    <title>Payment</title>
+</head>
+<style>
+    .admin-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+        font-family: sans-serif;
+    }
+</style>
+<body class="admin-container">
+    <p>Payment has been made</p>
+    <p>Order ID: {{ orderId }}</p>
+    <p>Amount: {{ amount }}</p>
+    <p>Customer: {{ contact.contactName }}</p>
+    <p>Email: {{ contact.email }}</p>
+    <p>Phone: {{ contact.phone }}</p>
+    <p>Payment method: {{  paymentMethod }}</p>
+    <p>Payment status: {{ status }}</p>
+</body>
+</html>

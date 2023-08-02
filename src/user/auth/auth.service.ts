@@ -44,7 +44,7 @@ export class AuthService {
       title: 'new user',
       data: `${newUser.name} signed up`,
     });
-    this.mailingService.sendMail('Welcome', 'welcome', {
+    this.mailingService.sendMail('Welcome', newUser.email, 'welcome', {
       name: newUser.name,
       email: newUser.email,
     });
