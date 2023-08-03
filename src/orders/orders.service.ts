@@ -59,6 +59,8 @@ export class OrdersService {
         email: true,
         name: true,
         phone: true,
+        user_type: true,
+        created_at: true,
         contacts: true,
         buyer_messages: true,
         orders: {
@@ -79,6 +81,9 @@ export class OrdersService {
         quantity: true,
         createdAt: true,
         user_id: true,
+        payment_method: true,
+        payment_status: true,
+        total: true,
         items: {
           select: {
             id: true,

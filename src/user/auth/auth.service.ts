@@ -78,7 +78,13 @@ export class AuthService {
   async generateProductKey(email: string, userType: UserType) {
     const string = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
 
-    return bcrypt.hash(string, 10);
+    const key = bcrypt.hash(string, 10);
+
+    const data = {
+      key: key,
+      email,
+    };
+    return key;
   }
   /* profile of user */
   async me(id: number) {
