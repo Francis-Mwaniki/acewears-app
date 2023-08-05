@@ -77,14 +77,18 @@ export class AuthService {
 
   async generateProductKey(email: string, userType: UserType) {
     const string = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
-
-    const key = bcrypt.hash(string, 10);
-
-    const data = {
-      key: key,
-      email,
-    };
-    return key;
+    try {
+      const key = bcrypt.hash(string, 10);
+      /* generate product and send to the email */
+      this.mailingService
+        .sendMail('Product Key', email, 'product-key', { key })
+        .catch((error) => {
+          console.error('Failed to send the email:', error);
+        });
+      return { message: 'Product key generated successfully' };
+    } catch (error) {
+      throw new HttpException('Error generating product key', 500);
+    }
   }
   /* profile of user */
   async me(id: number) {
@@ -131,5 +135,69 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async updatePassword(id: number, password: string, token: string) {
+    const tokenData = jwt.verify(token, process.env.JSON_TOKEN_KEY);
+    if (!tokenData) {
+      throw new HttpException('Invalid token', 400);
+    }
+    const { id: userId } = tokenData as any;
+    console.log('userId', userId);
+    if (userId !== id) {
+      throw new HttpException('Invalid token', 400);
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      throw new HttpException('Password cannot be the same', 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = await this.prismaService.user.update({
+      where: { id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return { message: 'Password updated successfully' };
+  }
+  async forgotPassword(email: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+
+    const token = this.generateToken(user.name, user.id);
+
+    this.mailingService.sendMail(
+      'Reset Password',
+      user.email,
+      'reset-password',
+      {
+        name: user.name,
+        email: user.email,
+        token,
+      },
+    );
+
+    return {
+      message: 'Check your email for password reset link',
+      token: token,
+    };
   }
 }
