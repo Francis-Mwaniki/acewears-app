@@ -9,6 +9,7 @@ import {
   whichUser,
 } from 'src/Utils.interfaces';
 import { ChatGateway } from 'src/chat/chat.gateway';
+import { OrdersService } from 'src/orders/orders.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class TransactionService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly orderService: OrdersService,
   ) {}
   createTransaction(transaction: CreateTransactionParams) {
     return {
@@ -183,27 +185,24 @@ export class TransactionService {
           },
         },
       });
-      const res = await this.prismaService.order.update({
+      const order = await this.prismaService.order.findUnique({
         where: {
           id: (await paypalTransaction).order_id,
         },
-        data: {
-          completed: true,
-          payment_method: 'PAYPAL',
-          payment_status: 'COMPLETED',
-        },
-        select: {
-          id: true,
-          completed: true,
-          payment_method: true,
-          payment_status: true,
-          items: true,
-          total: true,
-          quantity: true,
-          user: true,
-        },
       });
-      console.log('order paypal updated', res);
+      if (order) {
+        const userId = order.user_id;
+        const orders = await this.orderService.updateOrder(
+          order.id,
+          {
+            id: order.id,
+            payment_method: 'PAYPAL',
+            payment_status: 'COMPLETED',
+          },
+          userId,
+        );
+        console.log('paypal order', orders);
+      }
 
       this.chatGateway.server.emit('paypal-order', {
         message: 'paypal payment successful',
