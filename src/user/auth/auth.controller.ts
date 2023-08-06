@@ -7,6 +7,7 @@ import {
   ParseEnumPipe,
   UnauthorizedException,
   Get,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import * as bcrypt from 'bcryptjs';
@@ -53,9 +54,13 @@ export class AuthController {
   }
 
   @ApiOkResponse({ type: GenerateProductKeyDto })
+  @Roles(UserType.ADMIN)
   @Post('/key')
-  generateProductKey(@Body() { userType, email }: GenerateProductKeyDto) {
-    return this.authService.generateProductKey(email, userType);
+  generateProductKey(
+    @Body() { userType, email }: GenerateProductKeyDto,
+    @User() user: whichUser,
+  ) {
+    return this.authService.generateProductKey(email, userType, user.id);
   }
 
   @ApiOkResponse({ type: 'User Profile' })
@@ -78,5 +83,13 @@ export class AuthController {
     @Body() { password, token }: { password: string; token: string },
   ) {
     return this.authService.updatePassword(user.id, password, token);
+  }
+
+  /* delete user account */
+  @ApiOkResponse({ type: 'delete user account' })
+  @Roles(UserType.BUYER, UserType.ADMIN)
+  @Delete('/delete-account')
+  async deleteAccount(@User() user: whichUser) {
+    return this.authService.deleteAccount(user.id);
   }
 }

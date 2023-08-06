@@ -32,7 +32,7 @@ export class MailingService {
         resolve(token);
       });
     });
-  
+
     const config: Options = {
       service: 'gmail',
       auth: {
@@ -57,7 +57,7 @@ export class MailingService {
       .sendMail({
         transporterName: 'gmail',
         to: email,
-        from: 'francismwaniki630@gmail.com', // sender address
+        from: 'acewearske@gmail.com', // sender address
         subject: `${subject}`,
         template: `${direction}`,
         context: data,

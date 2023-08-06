@@ -57,7 +57,7 @@ export class TransactionController {
 
   /* paypal */
   @ApiCreatedResponse({ type: 'Transaction' })
-  @Roles(UserType.BUYER)
+  @Roles(UserType.BUYER, UserType.ADMIN)
   @Post('paypal')
   createPaypalTransaction(
     @Body() body: IPaypalPaymentDto,
@@ -241,7 +241,7 @@ export class TransactionController {
       );
       this.mailingServices.sendMail(
         'success',
-        'francismwaniki630@gmail.com',
+        'acewearske@gmail.com',
         'Admin',
         data,
       );
