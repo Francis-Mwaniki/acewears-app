@@ -151,6 +151,7 @@ export class TransactionService {
           payer_email: body.payerEmail,
           payment_method: body.paymentMethod,
           status: body.status,
+          orderID: body.order_id,
           amount: body.amount,
           currency: body.currency,
           payeeID: body.payeeId,
@@ -163,7 +164,7 @@ export class TransactionService {
           },
           order: {
             connect: {
-              id: user.id,
+              id: body.order_id,
             },
           },
         },
@@ -187,7 +188,7 @@ export class TransactionService {
       });
       const order = await this.prismaService.order.findUnique({
         where: {
-          id: (await paypalTransaction).order_id,
+          id: body.order_id,
         },
       });
       if (order) {

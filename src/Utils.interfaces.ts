@@ -44,6 +44,7 @@ export interface IPaypalPayment {
   payerEmail: string;
   amount: string;
   payeeId: string;
+  order_id: number;
   payeeEmail: string;
   merchantId: string;
   paymentMethod: PaymentMethod;
