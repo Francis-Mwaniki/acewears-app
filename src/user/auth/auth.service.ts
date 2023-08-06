@@ -75,20 +75,37 @@ export class AuthService {
     });
   }
 
-  async generateProductKey(email: string, userType: UserType) {
-    const string = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
+  async generateProductKey(email: string, userType: UserType, id: number) {
+    const stringKey = `${email}-${userType}-${process.env.PRODUCT_KEY_SECRET}`;
     try {
-      const key = bcrypt.hash(string, 10);
+      const key: string = (await bcrypt.hash(stringKey, 10)).toString();
+
+      const proDkey = await this.prismaService.productKey.create({
+        data: {
+          key: key,
+          email,
+          user_id: id,
+        },
+        select: {
+          key: true,
+          email: true,
+        },
+      });
+      const userKey = proDkey.key;
+      console.log('userKey', userKey);
       /* generate product and send to the email */
       this.mailingService
-        .sendMail('Product Key', email, 'product-key', { key })
+        .sendMail('Product Key', email, 'product-key', {
+          key: userKey,
+          email,
+        })
         .catch((error) => {
           console.error('Failed to send the email:', error);
         });
-      return { message: 'Product key generated successfully' };
     } catch (error) {
       throw new HttpException('Error generating product key', 500);
     }
+    return { message: 'Product key generated successfully, check ' };
   }
   /* profile of user */
   async me(id: number) {
@@ -199,5 +216,22 @@ export class AuthService {
       message: 'Check your email for password reset link',
       token: token,
     };
+  }
+  async deleteAccount(id: number) {
+    console.log('userId', id);
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+
+    await this.prismaService.user.delete({
+      where: { id },
+    });
+
+    return { message: 'Account deleted successfully' };
   }
 }

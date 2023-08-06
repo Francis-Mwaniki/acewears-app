@@ -8,11 +8,15 @@ import {
   TransactionParams,
   whichUser,
 } from 'src/Utils.interfaces';
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
   createTransaction(transaction: CreateTransactionParams) {
     return {
       ...transaction,
@@ -36,6 +40,29 @@ export class TransactionService {
       include: {
         order: true,
       },
+    });
+    await this.prismaService.order.update({
+      where: {
+        id: body.order_id,
+      },
+      data: {
+        completed: true,
+        payment_method: 'PAYPAL',
+        payment_status: 'COMPLETED',
+      },
+      select: {
+        id: true,
+        completed: true,
+        payment_method: true,
+        payment_status: true,
+        items: true,
+        total: true,
+        quantity: true,
+        user: true,
+      },
+    });
+    this.chatGateway.server.emit('paypal-order', {
+      message: 'paypal payment successful',
     });
     return transaction;
   }
