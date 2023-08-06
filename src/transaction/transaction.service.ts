@@ -41,29 +41,7 @@ export class TransactionService {
         order: true,
       },
     });
-    await this.prismaService.order.update({
-      where: {
-        id: body.order_id,
-      },
-      data: {
-        completed: true,
-        payment_method: 'PAYPAL',
-        payment_status: 'COMPLETED',
-      },
-      select: {
-        id: true,
-        completed: true,
-        payment_method: true,
-        payment_status: true,
-        items: true,
-        total: true,
-        quantity: true,
-        user: true,
-      },
-    });
-    this.chatGateway.server.emit('paypal-order', {
-      message: 'paypal payment successful',
-    });
+
     return transaction;
   }
 
@@ -204,6 +182,31 @@ export class TransactionService {
             },
           },
         },
+      });
+      const res = await this.prismaService.order.update({
+        where: {
+          id: (await paypalTransaction).order_id,
+        },
+        data: {
+          completed: true,
+          payment_method: 'PAYPAL',
+          payment_status: 'COMPLETED',
+        },
+        select: {
+          id: true,
+          completed: true,
+          payment_method: true,
+          payment_status: true,
+          items: true,
+          total: true,
+          quantity: true,
+          user: true,
+        },
+      });
+      console.log('order paypal updated', res);
+
+      this.chatGateway.server.emit('paypal-order', {
+        message: 'paypal payment successful',
       });
       return paypalTransaction;
     } catch (error) {
