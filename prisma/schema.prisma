@@ -130,6 +130,7 @@ model PaypalPayment {
   merchantID String
   payment_method PaymentMethod
   currency String
+  orderID Int @default(1)
   status TransactionStatus
   order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
   order_id Int
