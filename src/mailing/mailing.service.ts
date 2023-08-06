@@ -27,11 +27,12 @@ export class MailingService {
       oauth2Client.getAccessToken((err, token) => {
         if (err) {
           reject('Failed to create access token :(');
+          console.log('Failed to create access token :(', err);
         }
         resolve(token);
       });
     });
-
+  
     const config: Options = {
       service: 'gmail',
       auth: {
@@ -65,7 +66,7 @@ export class MailingService {
         console.log(success);
       })
       .catch((err: any) => {
-        console.log(err);
+        console.log('Failed to send the email:', err);
       });
   }
 }

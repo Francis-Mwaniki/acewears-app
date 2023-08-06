@@ -64,4 +64,19 @@ export class AuthController {
   async me(@User() user: whichUser) {
     return this.authService.me(user.id);
   }
+
+  @ApiOkResponse({ type: 'forgot password' })
+  @Post('/forgot-password')
+  async forgotPassword(@Body() { email }: { email: string }) {
+    return this.authService.forgotPassword(email);
+  }
+  @ApiOkResponse({ type: 'update password' })
+  @Roles(UserType.BUYER, UserType.ADMIN)
+  @Post('/update-password')
+  async updatePassword(
+    @User() user: whichUser,
+    @Body() { password, token }: { password: string; token: string },
+  ) {
+    return this.authService.updatePassword(user.id, password, token);
+  }
 }
