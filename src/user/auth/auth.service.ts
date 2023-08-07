@@ -214,7 +214,7 @@ export class AuthService {
 
     return {
       message: 'Check your email for password reset link',
-      token: token,
+      token: `https://www.acewears.co.ke/reset-password/${token}`,
     };
   }
   async deleteAccount(id: number) {
