@@ -76,7 +76,7 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
   @ApiOkResponse({ type: 'update password' })
-  @Roles(UserType.BUYER, UserType.ADMIN)
+  // @Roles(UserType.BUYER, UserType.ADMIN)
   @Post('/update-password')
   async updatePassword(
     @User() user: whichUser,

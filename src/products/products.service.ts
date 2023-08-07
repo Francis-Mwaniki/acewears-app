@@ -14,6 +14,50 @@ export class ProductsService {
     private readonly prismaService: PrismaService,
     private readonly chatGateWay: ChatGateway,
   ) {}
+
+  async getProductsByTitle(title?: string) {
+    const response = await this.prismaService.product.findMany({
+      where: {
+        title: {
+          contains: title,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        price: true,
+        title: true,
+        description: true,
+        categoryType: true,
+        quantity: true,
+        image: {
+          select: {
+            url: true,
+          },
+        },
+      },
+      take: 10,
+    });
+
+    if (!response.length) {
+      throw new NotFoundException('No Products found');
+    }
+    if (response.length) {
+      return response.map((Product) => {
+        const fetchProduct = { ...Product, image: Product.image[0] };
+        // delete fetchProduct.image[0];
+        return fetchProduct;
+      });
+    }
+    // return response.map((Product) => {
+    //   const fetchProduct = { ...Product, image: Product.image[0] };
+    //   delete fetchProduct.image[0];
+    //   return fetchProduct;
+    // });
+    else {
+      return response;
+    }
+  }
   async getProductsByPrice(maxPrice?: string, minPrice?: string) {
     const price =
       maxPrice || minPrice
