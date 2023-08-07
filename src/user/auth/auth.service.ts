@@ -159,11 +159,11 @@ export class AuthService {
     if (!tokenData) {
       throw new HttpException('Invalid token', 400);
     }
-    const { id: userId } = tokenData as any;
-    console.log('userId', userId);
-    if (userId !== id) {
-      throw new HttpException('Invalid token', 400);
-    }
+    // const { id: userId } = tokenData as any;
+    // console.log('userId', userId);
+    // if (userId !== id) {
+    //   throw new HttpException('Invalid token', 400);
+    // }
 
     const user = await this.prismaService.user.findUnique({
       where: { id },
@@ -181,7 +181,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const updatedUser = await this.prismaService.user.update({
+    await this.prismaService.user.update({
       where: { id },
       data: {
         password: hashedPassword,
