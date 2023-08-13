@@ -124,7 +124,6 @@ export class ProductsService {
           },
         },
       },
-      take: 10,
     });
 
     if (!response.length) {
