@@ -44,10 +44,18 @@ export class AuthService {
       title: 'new user',
       data: `${newUser.name} signed up`,
     });
-    this.mailingService.sendMail('Welcome', newUser.email, 'welcome', {
-      name: newUser.name,
-      email: newUser.email,
-    });
+    const newCustomer = newUser.name;
+    const mail = {
+      to: newUser.email,
+      subject: 'Welcome',
+      from: 'acewearske@gmail.com',
+      dynamicTemplateData: {
+        newCustomer: newUser.name,
+      },
+      templateId: 'd-46b0863b544e47dfab1b10938eebfe9a',
+    };
+
+    this.mailingService.send(mail);
     // return user
     return { user: newUser, token };
   }
@@ -94,14 +102,18 @@ export class AuthService {
       const userKey = proDkey.key;
       console.log('userKey', userKey);
       /* generate product and send to the email */
-      this.mailingService
-        .sendMail('Product Key', email, 'product-key', {
+      const mail = {
+        to: email,
+        subject: 'Product Key',
+        from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+        dynamicTemplateData: {
           key: userKey,
-          email,
-        })
-        .catch((error) => {
-          console.error('Failed to send the email:', error);
-        });
+          email: email,
+        },
+        templateId: 'd-22f0d206bee84ba681162ccc43b48ea1',
+      };
+
+      this.mailingService.send(mail);
     } catch (error) {
       throw new HttpException('Error generating product key', 500);
     }
@@ -200,17 +212,19 @@ export class AuthService {
     }
 
     const token = this.generateToken(user.name, user.id);
-
-    this.mailingService.sendMail(
-      'Reset Password',
-      user.email,
-      'reset-password',
-      {
+    const mail = {
+      to: user.email,
+      subject: 'Reset Password',
+      from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+      dynamicTemplateData: {
         name: user.name,
         email: user.email,
-        token,
+        token: token,
       },
-    );
+      templateId: 'd-a941149b68924788834855d394b2a0f6',
+    };
+
+    this.mailingService.send(mail);
 
     return {
       message: 'Check your email for password reset link',
