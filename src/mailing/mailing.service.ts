@@ -8,9 +8,7 @@ export class MailingService {
     // Don't forget this one.
     // The apiKey is required to authenticate our
     // request to SendGrid API.
-    SendGrid.setApiKey(
-      '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',
-    );
+    SendGrid.setApiKey(this.configService.get<string>('SEND_GRID_KEY'));
   }
 
   public async send(mail: SendGrid.MailDataRequired) {
