@@ -6,11 +6,13 @@ export class MailingController {
   constructor(readonly mailingService: MailingService) {}
   @Get()
   public sendMail() {
-    this.mailingService.sendMail(
-      'test',
-      'francismwaniki630@gmail.com',
-      'action',
-      { code: 'test' },
-    );
+    const mail = {
+      to: 'francismwaniki630@gmail.com',
+      subject: 'Hello from sendgrid',
+      from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+      text: 'Hello',
+      html: '<h1>Hello</h1>',
+    };
+    this.mailingService.send(mail);
   }
 }

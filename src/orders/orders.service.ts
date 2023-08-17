@@ -435,17 +435,19 @@ export class OrdersService {
 
     const { payment_method, payment_status, id, contact } = await createOrder;
 
-    this.mailingService.sendMail(
-      'Order Initiated',
-      contactUser.email,
-      'createOrder',
-      {
-        payment_method,
-        payment_status,
-        id,
-        contact,
+    const mail = {
+      to: contactUser.email,
+      subject: 'Order Initiated',
+      from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+      dynamicTemplateData: {
+        payment_method: payment_method,
+        payment_status: payment_status,
+        id: id,
+        contact: contact,
       },
-    );
+      templateId: 'd-f7deb4dcc99142a8bc1df646dcd1d6b4',
+    };
+    this.mailingService.send(mail);
 
     return createOrder;
   }
@@ -638,17 +640,24 @@ export class OrdersService {
       data: `order of id ${updatedOrder.id} was update by ${contactUser.user.email} paid with ${updatedOrder.payment_method} at ${updatedOrder.updatedAt}`,
     });
 
-    this.mailingService.sendMail('orders', contactUser.email, 'orders', {
-      contactName: contactUser.user.name,
-      contact: updatedOrder.contact,
-      id: updatedOrder.id,
-      quantity: updatedOrder.quantity,
-      payment_method: updatedOrder.payment_method,
-      payment_status: updatedOrder.payment_status,
-      total: updatedOrder.total,
-      updatedAt: updatedOrder.updatedAt,
-      items: updatedOrder.items,
-    });
+    const mail = {
+      to: contactUser.email,
+      subject: 'Orders',
+      from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+      dynamicTemplateData: {
+        contactName: contactUser.user.name,
+        contact: updatedOrder.contact,
+        id: updatedOrder.id,
+        quantity: updatedOrder.quantity,
+        payment_method: updatedOrder.payment_method,
+        payment_status: updatedOrder.payment_status,
+        total: updatedOrder.total,
+        updatedAt: updatedOrder.updatedAt,
+        items: updatedOrder.items,
+      },
+      templateId: 'd-7d01858820184aa2ac10b2bd92c80863',
+    };
+    this.mailingService.send(mail);
     return updatedOrder;
   }
 

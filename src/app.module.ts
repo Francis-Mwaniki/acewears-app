@@ -26,7 +26,11 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       isGlobal: true,
     }),
     MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
+      /* sendgrid */
+      transport: {
+        host: 'smtp.sendgrid.net',
+        port: 587,
+      },
       template: {
         dir: process.cwd() + '/templates/',
         adapter: new HandlebarsAdapter(),

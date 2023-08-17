@@ -152,19 +152,28 @@ export class TransactionController {
           id: order.contact_id,
         },
       });
-      const data = {
-        amount: body.Body.stkCallback.Amount,
-        msisdn: body.Body.stkCallback.Msisdn,
-        merchantRequestID: body.Body.stkCallback.MerchantRequestID,
-        checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
-        resultDesc: body.Body.stkCallback.ResultDesc,
-        orderId: body.Body.stkCallback.ExternalReference,
-        status: order.payment_status,
-        paymentMethod: order.payment_method,
-        contact: contact,
-        transactionDate: new Date().toLocaleDateString(),
-        receiptNumber: Math.floor(Math.random() * 1000000000),
+
+      const mail = {
+        to: contact.email,
+        subject: 'Payment Failed',
+        from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+        dynamicTemplateData: {
+          amount: body.Body.stkCallback.Amount,
+          msisdn: body.Body.stkCallback.Msisdn,
+          merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+          checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+          resultDesc: body.Body.stkCallback.ResultDesc,
+          orderId: body.Body.stkCallback.ExternalReference,
+          status: order.payment_status,
+          paymentMethod: order.payment_method,
+          contact: contact,
+          transactionDate: new Date().toLocaleDateString(),
+          receiptNumber: Math.floor(Math.random() * 1000000000),
+        },
+        templateId: 'd-c9ccb0982fca4de488c4e8ba46c77bdd',
       };
+
+      this.mailingServices.send(mail);
 
       // this.mailingServices.sendMail(
       //   'Error',
@@ -172,12 +181,6 @@ export class TransactionController {
       //   'Admin',
       //   data,
       // );
-      this.mailingServices.sendMail(
-        'Error',
-        contact.email,
-        'payment_notification',
-        data,
-      );
 
       return await this.prismaService.errorTinyCallback.create({
         data: {
@@ -233,18 +236,47 @@ export class TransactionController {
         transactionDate: new Date().toLocaleDateString(),
         receiptNumber: Math.floor(Math.random() * 1000000000),
       };
-      this.mailingServices.sendMail(
-        'success',
-        contact.email,
-        'payment_notification',
-        data,
-      );
-      this.mailingServices.sendMail(
-        'success',
-        'acewearske@gmail.com',
-        'Admin',
-        data,
-      );
+      const mail = {
+        to: contact.email,
+        subject: 'Payment SuccessFul',
+        from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+        dynamicTemplateData: {
+          amount: body.Body.stkCallback.Amount,
+          msisdn: body.Body.stkCallback.Msisdn,
+          merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+          checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+          resultDesc: body.Body.stkCallback.ResultDesc,
+          orderId: body.Body.stkCallback.ExternalReference,
+          status: order.payment_status,
+          paymentMethod: order.payment_method,
+          contact: contact,
+          transactionDate: new Date().toLocaleDateString(),
+          receiptNumber: Math.floor(Math.random() * 1000000000),
+        },
+        templateId: 'd-c9ccb0982fca4de488c4e8ba46c77bdd',
+      };
+      this.mailingServices.send(mail);
+      const Admin = {
+        to: contact.email,
+        subject: 'Payment SuccessFul',
+        from: 'acewearske@gmail.com', // Fill it with your validated email on SendGrid account
+        dynamicTemplateData: {
+          amount: body.Body.stkCallback.Amount,
+          msisdn: body.Body.stkCallback.Msisdn,
+          merchantRequestID: body.Body.stkCallback.MerchantRequestID,
+          checkoutRequestID: body.Body.stkCallback.CheckoutRequestID,
+          resultDesc: body.Body.stkCallback.ResultDesc,
+          orderId: body.Body.stkCallback.ExternalReference,
+          status: order.payment_status,
+          paymentMethod: order.payment_method,
+          contact: contact,
+          transactionDate: new Date().toLocaleDateString(),
+          receiptNumber: Math.floor(Math.random() * 1000000000),
+        },
+        templateId: 'd-c9ccb0982fca4de488c4e8ba46c77bdd',
+      };
+
+      this.mailingServices.send(Admin);
 
       return await this.prismaService.tinyCallback.create({
         data: {

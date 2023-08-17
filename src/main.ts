@@ -9,31 +9,6 @@ const port = process.env.PORT || 3000;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // app.enableCors({
-  //   origin: 'http://localhost:3001',
-  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  //   credentials: true,
-  // });
-
-  /* enable sockets */
-  // app.enableCors({
-  //   origin: 'http://localhost:3000',
-  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  //   credentials: true,
-  // });
-
-  /* use node 18 */
-  // app.use(
-  //   (
-  //     req: any,
-  //     res: { header: (arg0: string, arg1: string) => void },
-  //     next: () => void,
-  //   ) => {
-  //     res.header('Access-Control-Allow-Origin', '*');
-  //     next();
-  //   },
-  // );
-
   app.enableCors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
